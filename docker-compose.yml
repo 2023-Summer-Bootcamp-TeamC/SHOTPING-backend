@@ -17,6 +17,14 @@ services:
       - DB_NAME=${MYSQL_DATABASE}
       - DB_PORT=${DB_PORT}
     command: npm run dev
+  flask-service:
+    container_name: flask-service
+    build: ./shotping_flask
+    restart: always
+    ports:
+      - 5001:5000
+    volumes:
+      - ./shotping_flask:/app
   db:
     image: mysql:8.0
     environment:
