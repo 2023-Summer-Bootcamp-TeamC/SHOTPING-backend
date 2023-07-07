@@ -40,8 +40,18 @@ services:
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
     restart: unless-stopped # 컨테이너 종료시 (재시작여부) 종료 코드와 상관없이 컨테이너가 다시시작하지만 서비스가 중지되거나 제거되면 다시 시작을 중지
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
     ports:
       - 5672:5672 #rabbitmq AMQP 기본 포트 번호
       - 15672:15672 #Rabbitmq web
+  celery:
+    build: ./shotping_flask
+    volumes:
+      - ./shotping_flask:/code
+    depends_on:
+      - rabbitmq
+    command: celery -A tasks worker --loglevel=info
 volumes:
   db-data:
