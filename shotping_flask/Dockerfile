@@ -15,6 +15,9 @@ COPY requirements.txt .
 # Install any dependencies
 RUN pip install -r requirements.txt
 
+RUN apt-get update
+RUN apt-get -y install libgl1-mesa-glx
+
 # Copy the content of the local src directory to the working directory in the container
 COPY . .
 
