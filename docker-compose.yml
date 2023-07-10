@@ -16,6 +16,8 @@ services:
       - DB_PASSWORD=${MYSQL_PASSWORD}
       - DB_NAME=${MYSQL_DATABASE}
       - DB_PORT=${DB_PORT}
+      - ACCESS_KEY=${ACCESS_KEY}
+      - SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}
     command: npm run dev
   flask-service:
     container_name: flask-service
