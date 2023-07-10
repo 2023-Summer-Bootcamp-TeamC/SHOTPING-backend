@@ -3,8 +3,10 @@ import re
 import torch
 import json
 import pandas as pd
+from PIL import Image
+from io import BytesIO
 
-
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 # 탐지한 객체들의 좌표와 레이블을 반환해주는 함수
 def object_cords(select_model):
     return json.loads(select_model.pandas().xyxy[0].to_json(orient="records"))
@@ -43,18 +45,23 @@ def delete_txt():
 
 # YOLOv5모델로 이미지 객체 탐지
 def predict(img_name):
-    model = torch.hub.load("ultralytics/yolov5", "custom", "best.pt")
+    # model = torch.hub.load("ultralytics/yolov5", "custom", "best.pt")
 
-    select_model = model(img_name, size=640)
+    # select_model = model(img_name, size=640)
 
-    object_cords(select_model)
-    get_class(select_model)
+    # object_cords(select_model)
+    # get_class(select_model)
 
-    create_txt(select_model)
-    num_line = list(map(int, create_txt(select_model)))
+    # create_txt(select_model)
+    # num_line = list(map(int, create_txt(select_model)))
 
-    result = []
-    for i in get_id(num_line):
-        result.append({"id": i})
-    delete_txt()
-    return result
+    # result = []
+    # for i in get_id(num_line):
+    #     result.append({"id": i})
+    # delete_txt()
+    # return result
+    img = Image.open(BytesIO(img_name)).convert('RGB')
+    results = model(img)
+    prediction = list(results.pandas().xyxy[0].to_dict()['name'].values())[0]
+    
+    return prediction

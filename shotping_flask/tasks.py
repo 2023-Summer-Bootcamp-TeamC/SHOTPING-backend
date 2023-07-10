@@ -4,12 +4,13 @@ from detect import predict
 
 app = Celery(
     "tasks",
-    broker="amqp://kgy3002:kgy30022@shotping-backend-rabbitmq-1:5672/",
-    backend="rpc://kgy3002:kgy30022@shotping-backend-rabbitmq-1:5672/",
+    broker="amqp://shotping:shotping@shotping-backend-rabbitmq-1:5672/",
+    backend="rpc://shotping:shotping@shotping-backend-rabbitmq-1:5672/",
     include=["tasks"],
 )
 
 
 @app.task
-def prediction(img_name):
-    return predict(img_name)
+def prediction(id, img_name):
+    result = predict(img_name)
+    return result
