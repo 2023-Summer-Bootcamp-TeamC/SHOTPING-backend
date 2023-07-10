@@ -17,9 +17,9 @@ def test_predict_route():
             return jsonify({"error": "No file part"})
         
         id = request.form.get('id') # key : id
-        file = request.files['image'] # key : image
+        image = request.files['image'] # key : image
         
-        img_name = BytesIO(file.read()).getvalue() # Bytes로 변환
+        img_name = BytesIO(image.read()).getvalue() # Bytes로 변환
         
         # celery worker
         task = prediction.delay(id, img_name)

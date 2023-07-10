@@ -45,22 +45,24 @@ def delete_txt():
 
 # YOLOv5모델로 이미지 객체 탐지
 def predict(img_name):
-    # model = torch.hub.load("ultralytics/yolov5", "custom", "best.pt")
+    model = torch.hub.load("ultralytics/yolov5", "custom", "best.pt")
 
-    # select_model = model(img_name, size=640)
+    select_model = model(img_name, size=640)
 
-    # object_cords(select_model)
-    # get_class(select_model)
+    object_cords(select_model)
+    get_class(select_model)
 
-    # create_txt(select_model)
-    # num_line = list(map(int, create_txt(select_model)))
+    create_txt(select_model)
+    num_line = list(map(int, create_txt(select_model)))
 
-    # result = []
-    # for i in get_id(num_line):
-    #     result.append({"id": i})
-    # delete_txt()
-    # return result
-    img = Image.open(BytesIO(img_name)).convert('RGB')
+    result = []
+    for i in get_id(num_line):
+        result.append({"id": i})
+    delete_txt()
+    return result
+
+def predict_image(img_bytes):
+    img = Image.open(BytesIO(img_bytes)).convert('RGB')
     results = model(img)
     prediction = list(results.pandas().xyxy[0].to_dict()['name'].values())[0]
     

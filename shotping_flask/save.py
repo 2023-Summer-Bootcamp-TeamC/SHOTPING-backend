@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Table, MetaData, Column, String, INTEGER
 from sqlalchemy.orm import sessionmaker
 
 def save_image(id, prediction):
-    engine = create_engine("mysql+pymysql://user:1234@localhost/database")
+    engine = create_engine("mysql+pymysql://user:1234@db/database")
     
     # 세션 생성
     Session = sessionmaker(bind=engine)
