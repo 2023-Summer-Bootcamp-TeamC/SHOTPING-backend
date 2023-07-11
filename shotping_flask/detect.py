@@ -3,8 +3,11 @@ import re
 import torch
 import json
 import pandas as pd
+from PIL import Image
+from io import BytesIO
+from collections import Counter
 
-
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 # 탐지한 객체들의 좌표와 레이블을 반환해주는 함수
 def object_cords(select_model):
     return json.loads(select_model.pandas().xyxy[0].to_json(orient="records"))
@@ -57,4 +60,16 @@ def predict(img_name):
     for i in get_id(num_line):
         result.append({"id": i})
     delete_txt()
+    return result
+
+def predict_image(img_bytes):
+    img = Image.open(BytesIO(img_bytes)).convert('RGB')
+    results = model(img)
+    prediction = results.pandas().xyxy[0]
+
+    # 감지된 물체의 이름과 수량을 json 형태의 문자열로 저장
+    counts = Counter(prediction['name'])
+    result = json.dumps(counts)
+    print(result)
+    
     return result

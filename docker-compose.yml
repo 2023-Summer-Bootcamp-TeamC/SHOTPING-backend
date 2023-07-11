@@ -54,6 +54,6 @@ services:
       - ./shotping_flask:/code
     depends_on:
       - rabbitmq
-    command: celery -A tasks worker --loglevel=info
+    command: celery -A tasks worker --loglevel=info --pool=threads
 volumes:
   db-data:
