@@ -5,8 +5,10 @@ from save import save_image
 
 app = Celery(
     "tasks",
-    broker="amqp://shotping:shotping@shotping-backend-rabbitmq-1:5672/",
-    backend="rpc://shotping:shotping@shotping-backend-rabbitmq-1:5672/",
+
+    broker="amqp://shotping:1234@shotping-backend-rabbitmq-1:5672/",
+    backend="rpc://shotping:1234@shotping-backend-rabbitmq-1:5672/",
+
     include=["tasks"],
 )
 

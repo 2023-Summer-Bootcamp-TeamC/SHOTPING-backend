@@ -1,64 +1,96 @@
-import express, { Express, Request, Response } from "express";
-import mysql, { Connection } from "mysql";
-import dotenv from "dotenv";
+import express, { Request, Response } from 'express';
+import multer from 'multer';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import dotenv from 'dotenv';
+import mysql from 'mysql2/promise'
+import axios from 'axios';
+import FormData from 'form-data';
 
-const app: Express = express();
 dotenv.config();
-const port = 8080;
 
+const REGION = "ap-northeast-2";
+const BUCKET_NAME = "summer-bootcamp-shotping";
+const ACCESS_KEY = process.env.ACCESS_KEY as string;
+const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY as string;
+
+const s3Client = new S3Client({
+  region: REGION,
+  credentials: {
+    accessKeyId: ACCESS_KEY,
+    secretAccessKey: SECRET_ACCESS_KEY,
+  },
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+const app: express.Express = express();
+const port=8080
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Create a connection
-const db: Connection = mysql.createConnection({
-  host: process.env.DB_HOST, // Docker Compose 파일에 정의된 MySQL 서비스 이름을 사용하십시오.
-  user: process.env.MYSQL_USER, // MySQL username
-  password: process.env.MYSQL_PASSWORD, // MySQL password
-  database: process.env.MYSQL_DATABASE, // Database name
+// Database connection
+const connection = mysql.createConnection({
+  host: "db",
+  user: "admin",
+  password: "1234",
+  database: "shotping"
 });
 
-// Connect to the database
-db.connect((err: any) => {
-  if (err) {
-    throw err;
+// Table creation
+connection.then(async (conn) => {
+  await conn.query(`CREATE TABLE IF NOT EXISTS recogimg (id INT AUTO_INCREMENT PRIMARY KEY, imgurl VARCHAR(255), imgresult VARCHAR(255))`);
+}).catch((error) => {
+  console.error(error);
+});
+
+app.post('/recognition', upload.single('upload'), async (req: Request, res: Response) => {
+  if (!req.file) {
+    res.status(400).send({ error: 'No file attached' });
+    return;
   }
-  console.log("Connected to the MySQL server.");
-});
 
-// Define a route to get some data from the database
-app.get("/users", (req: Request, res: Response) => {
-  db.query("SELECT * FROM Users", (err, result) => {
-    if (err) {
-      res.send({ error: err });
-    } else {
-      res.send({ users: result });
-    }
+  const file = req.file;
+  const key = `photosave/${Date.now().toString()}_${file.originalname}`;
+
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype,
   });
+
+  try {
+    await s3Client.send(command);
+    const imageUrl = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
+    
+    // Insert the image URL into the database and get the inserted id
+    const [insertResults] = await (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
+    const imgId = (insertResults as mysql.OkPacket).insertId;
+    console.log(`Inserted image id: ${imgId}`);
+    const formData = new FormData();
+    formData.append('image', file.buffer, {
+      contentType: file.mimetype,
+      filename: file.originalname,
+    });
+    formData.append('id', imgId.toString());
+  
+    const response = await axios.post("http://flask-service:5000/predict", formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+    });
+
+
+    // Insert the image URL into the database
+    // (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
+
+     res.status(200).send({ imageUrl: imageUrl, imgId: imgId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'Error processing file upload' });
+  }
 });
 
-/*예시코드 */
-//migrations로 데이터베이스 users 테이블 생성
-//테이블 기초 세팅
-app.post("/users", (req: Request, res: Response) => {
-  const user = req.body;
+app.listen(port, () => console.log("Server is running at port 8080"));
 
-  // Get the current date and time
-  const now = new Date();
-
-  const query =
-    "INSERT INTO Users (firstName, lastName, email, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)";
-  db.query(
-    query,
-    [user.firstName, user.lastName, user.email, now, now],
-    (err, result) => {
-      if (err) {
-        res.send({ error: err });
-      } else {
-        res.send({ user: user, result: result });
-      }
-    }
-  );
-});
-
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
-});
