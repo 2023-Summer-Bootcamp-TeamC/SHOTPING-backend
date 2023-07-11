@@ -11,19 +11,8 @@ def save_image(id, prediction):
     # 메타데이터 생성
     metadata = MetaData()
     metadata.reflect(bind=engine)
-    # 이제 이미 있는 테이블에 연결
+    # 이미 있는 테이블에 연결
     data = Table('recogimg', metadata, autoload_with=engine)
-    # # 테이블 생성 (이미 있다면 생성 X)
-    # data = Table(
-    #     'data',
-    #     metadata,
-    #     Column('id', INTEGER, primary_key=True),
-    #     Column('image_url', String(100)),
-    #     Column('result', String(100)),
-    #     extend_existing=True
-    # )
-    
-    # metadata.create_all(engine)
 
     try:
         # 데이터 수정
