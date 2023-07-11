@@ -27,6 +27,7 @@ services:
       - 5001:5000
     volumes:
       - ./shotping_flask:/app
+    command: gunicorn -b :5000 app:app
   db:
     image: mysql:8.0
     environment:
