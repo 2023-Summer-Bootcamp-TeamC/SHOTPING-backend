@@ -26,12 +26,6 @@ def test_predict_route():
         
         return {"task_id": task.id}, 202
 
-    # 이미지 파일의 이름을 직접 입력합니다. 여기에 있는 'test.jpg'를 실제 이미지 파일의 이름으로 변경해주세요.
-    elif (request.method == 'GET'):
-        id = 0
-        img_name = "image_0.jpg"
-        task = prediction.delay(id, img_name)
-        return {"task_id": task.id}, 202
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", port=5000,debug=True)
