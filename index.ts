@@ -3,6 +3,8 @@ import multer from 'multer';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise'
+import axios from 'axios';
+import FormData from 'form-data';
 
 dotenv.config();
 
@@ -59,20 +61,36 @@ app.post('/recognition', upload.single('upload'), async (req: Request, res: Resp
   });
 
   try {
-    const uploadResult = await s3Client.send(command);
+    await s3Client.send(command);
     const imageUrl = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
     
-    // Table creation
+    // Insert the image URL into the database and get the inserted id
+    const [insertResults] = await (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
+    const imgId = (insertResults as mysql.OkPacket).insertId;
+    console.log(`Inserted image id: ${imgId}`);
+    const formData = new FormData();
+    formData.append('image', file.buffer, {
+      contentType: file.mimetype,
+      filename: file.originalname,
+    });
+    formData.append('id', imgId.toString());
+  
+    const response = await axios.post("http://flask-service:5000/predict", formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+    });
+
 
     // Insert the image URL into the database
-    (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
+    // (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
 
-    res.status(200).send({ imageUrl: imageUrl });
+     res.status(200).send({ imageUrl: imageUrl, imgId: imgId });
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: 'Error processing file upload' });
   }
 });
 
-app.listen(port, () => console.log("Server is running at port 3000"));
+app.listen(port, () => console.log("Server is running at port 8080"));
 
