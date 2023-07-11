@@ -9,7 +9,7 @@ import FormData from 'form-data';
 dotenv.config();
 
 const REGION = "ap-northeast-2";
-const BUCKET_NAME = "summer-bootcamp-shotping";
+const BUCKET_NAME = "bootcamp-shotping";
 const ACCESS_KEY = process.env.ACCESS_KEY as string;
 const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY as string;
 
@@ -67,15 +67,16 @@ app.post('/recognition', upload.single('upload'), async (req: Request, res: Resp
     // Insert the image URL into the database and get the inserted id
     const [insertResults] = await (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
     const imgId = (insertResults as mysql.OkPacket).insertId;
-    console.log(`Inserted image id: ${imgId}`);
+    
     const formData = new FormData();
     formData.append('image', file.buffer, {
       contentType: file.mimetype,
       filename: file.originalname,
     });
+
     formData.append('id', imgId.toString());
-  
-    const response = await axios.post("http://flask-service:5000/predict", formData, {
+    
+    await axios.post("http://flask-service:5000/test_predict", formData, {
       headers: {
         ...formData.getHeaders(),
       },
