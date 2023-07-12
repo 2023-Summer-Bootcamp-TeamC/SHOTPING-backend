@@ -80,8 +80,8 @@ app.post(
       const [insertResults] = await (
         await connection
       ).query(
-        `INSERT INTO Data (image_url, ai_predict, iscorrect, feedback_text) 
-        VALUES (?, 'default_value', 0, 'default_text')`,
+        `INSERT INTO Data (image_url, ai_predict, iscorrect, feedback_text, createdAt, updatedAt) 
+        VALUES (?, 'default_value', 0, 'default_text', NOW(), NOW())`,
         [imageUrl]
       );
       const imgId = (insertResults as mysql.OkPacket).insertId;
