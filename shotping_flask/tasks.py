@@ -1,6 +1,5 @@
 from celery import Celery
 from detect import predict_image
-
 import os
 
 app = Celery(
@@ -10,10 +9,7 @@ app = Celery(
     include=["tasks"],
 )
 
-
-
 @app.task
 def prediction(img_name):
     result = predict_image(img_name)
-    # save_image(id, result)
     return result

@@ -4,13 +4,11 @@ from io import BytesIO
 
 app = Flask(__name__)
 
-
 @app.route("/")
 def hello_world():
     return "Hello, World!"
 
-
-@app.route("/test_predict", methods=["GET", "POST"])
+@app.route("/predict", methods=["GET", "POST"])
 def test_predict_route():
     if request.method == "POST":
         if "image" not in request.files:
@@ -26,11 +24,10 @@ def test_predict_route():
 
         return {"task_id": task.id}, 202
     
-@app.route("/task/<task_id>", methods=["GET"])
+@app.route("/result/<task_id>", methods=["GET"])
 def get_task_result(task_id):
     task_result = celery_app.AsyncResult(task_id)
     return jsonify({
         'status': task_result.status,
         'result': task_result.result,  # This is None if the task hasn't finished yet
 })
-
