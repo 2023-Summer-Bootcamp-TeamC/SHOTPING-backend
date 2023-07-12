@@ -27,5 +27,5 @@ def test_predict_route():
         return {"task_id": task.id}, 202
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000,debug=True)
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", port=5000,debug=True)

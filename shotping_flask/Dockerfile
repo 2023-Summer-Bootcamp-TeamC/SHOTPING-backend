@@ -25,4 +25,4 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 
 # Specify the command to run on container start
-CMD [ "python", "./app.py" ]
+CMD ["gunicorn", "-b", ":5000", "app:app"]
