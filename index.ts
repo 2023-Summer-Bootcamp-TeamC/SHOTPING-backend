@@ -51,18 +51,7 @@ const connection = mysql.createConnection({
   password: MYSQL_PASSWORD,
   database: MYSQL_DATABASE,
 });
-/*
-connection
-  .then(async (conn) => {
-    await conn.query(`DROP TABLE IF EXISTS product;`);
-    await conn.query(`DROP TABLE IF EXISTS recogimgs;`);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-*/
 
-/* 
 app.post(
   "/recognition",
   upload.single("upload"),
@@ -91,8 +80,8 @@ app.post(
       const [insertResults] = await (
         await connection
       ).query(
-        `INSERT INTO recogimgs (image_url, ai_predict, is_correct, feedback_text) 
-    VALUES (?, NULL, 0, NULL)`,
+        `INSERT INTO Data (image_url, ai_predict, iscorrect, feedback_text) 
+        VALUES (?, 'default_value', 0, 'default_text')`,
         [imageUrl]
       );
       const imgId = (insertResults as mysql.OkPacket).insertId;
@@ -127,7 +116,18 @@ app.post(
     }
   }
 );
-*/
+
 app.listen(port, () => console.log("Server is running at port 8080"));
 
 sequelize.sync();
+
+/* 기존 테이블을 삭제하는 코드
+connection
+  .then(async (conn) => {
+    await conn.query(`DROP TABLE IF EXISTS product;`);
+    await conn.query(`DROP TABLE IF EXISTS recogimgs;`);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+*/
