@@ -21,5 +21,8 @@ RUN apt-get -y install libgl1-mesa-glx
 # Copy the content of the local src directory to the working directory in the container
 COPY . .
 
+ENV PYTHONDONTWRITEBYTECODE 1
+
+
 # Specify the command to run on container start
 CMD ["gunicorn", "-b", ":5000", "app:app"]
