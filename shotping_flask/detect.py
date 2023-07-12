@@ -1,5 +1,3 @@
-import os.path
-import re
 import torch
 import json
 import pandas as pd
@@ -15,7 +13,7 @@ def predict_image(img_bytes):
     prediction = results.pandas().xyxy[0]
 
     # 감지된 물체의 이름과 수량을 json 형태의 문자열로 저장
-    counts = Counter(prediction['name'])
+    counts = Counter(prediction['class'])
     result = json.dumps(counts)
     print(result)
     
