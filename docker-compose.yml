@@ -11,10 +11,10 @@ services:
     depends_on:
       - db
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${MYSQL_USER}
-      - DB_PASSWORD=${MYSQL_PASSWORD}
-      - DB_NAME=${MYSQL_DATABASE}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
       - DB_PORT=${DB_PORT}
       - ACCESS_KEY=${ACCESS_KEY}
       - SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}
@@ -35,6 +35,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_HOST: ${MYSQL_HOST}
     volumes:
       - db-data:/var/lib/mysql
     ports:
@@ -44,8 +45,8 @@ services:
     hostname: "rabbitmq"
     restart: unless-stopped # 컨테이너 종료시 (재시작여부) 종료 코드와 상관없이 컨테이너가 다시시작하지만 서비스가 중지되거나 제거되면 다시 시작을 중지
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     ports:
       - 5672:5672 #rabbitmq AMQP 기본 포트 번호
       - 15672:15672 #Rabbitmq web
@@ -55,6 +56,9 @@ services:
       - ./shotping_flask:/code
     depends_on:
       - rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: celery -A tasks worker --loglevel=info --pool=threads
 volumes:
   db-data:

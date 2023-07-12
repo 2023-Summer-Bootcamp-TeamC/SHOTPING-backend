@@ -10,6 +10,11 @@ dotenv.config();
 
 const REGION = "ap-northeast-2";
 const BUCKET_NAME = "bootcamp-shotping";
+// 환경변수에서 정보 불러오기
+const MYSQL_HOST = process.env.MYSQL_HOST as string;
+const MYSQL_USER = process.env.MYSQL_USER as string;
+const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD as string;
+const MYSQL_DATABASE = process.env.MYSQL_DATABASE as string;
 const ACCESS_KEY = process.env.ACCESS_KEY as string;
 const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY as string;
 
@@ -31,10 +36,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Database connection
 const connection = mysql.createConnection({
-  host: "db",
-  user: "admin",
-  password: "1234",
-  database: "shotping"
+  host: MYSQL_HOST,
+  user: MYSQL_USER,
+  password: MYSQL_PASSWORD,
+  database: MYSQL_DATABASE
 });
 // Product Table creation
 connection.then(async (conn) => {
