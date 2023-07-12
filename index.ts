@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 import axios from "axios";
 import FormData from "form-data";
+import { Sequelize } from "sequelize";
+
+// @ts-ignore
+import { Product, Data } from "./models"; //모듈에 대한 타압검사를 받지 않도록 함
 
 dotenv.config();
 
@@ -24,6 +28,12 @@ const s3Client = new S3Client({
     accessKeyId: ACCESS_KEY,
     secretAccessKey: SECRET_ACCESS_KEY,
   },
+});
+
+const sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, {
+  host: MYSQL_HOST,
+  dialect: "mysql",
+  logging: false,
 });
 
 const storage = multer.memoryStorage();
@@ -46,42 +56,6 @@ connection
   .then(async (conn) => {
     await conn.query(`DROP TABLE IF EXISTS product;`);
     await conn.query(`DROP TABLE IF EXISTS recogimgs;`);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-*/
-/*
-// Product Table creation
-connection
-  .then(async (conn) => {
-    await conn.query(`
-    CREATE TABLE IF NOT EXISTS product (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      product_name VARCHAR(100),
-      product_price INT,
-      product_stock INT,
-      product_buy INT,
-      image_url VARCHAR(100)
-    )
-  `);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-
-// Recogimg Table creation
-connection
-  .then(async (conn) => {
-    await conn.query(`
-    CREATE TABLE IF NOT EXISTS recogimgs (
-      id INT AUTO_INCREMENT PRIMARY KEY, 
-      image_url VARCHAR(100), 
-      ai_predict VARCHAR(100), 
-      is_correct TINYINT(1), 
-      feedback_text VARCHAR(255)
-    )
-  `);
   })
   .catch((error) => {
     console.error(error);
@@ -155,3 +129,5 @@ app.post(
 );
 */
 app.listen(port, () => console.log("Server is running at port 8080"));
+
+sequelize.sync();
