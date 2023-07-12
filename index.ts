@@ -10,6 +10,11 @@ dotenv.config();
 
 const REGION = "ap-northeast-2";
 const BUCKET_NAME = "bootcamp-shotping";
+// 환경변수에서 정보 불러오기
+const MYSQL_HOST = process.env.MYSQL_HOST as string;
+const MYSQL_USER = process.env.MYSQL_USER as string;
+const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD as string;
+const MYSQL_DATABASE = process.env.MYSQL_DATABASE as string;
 const ACCESS_KEY = process.env.ACCESS_KEY as string;
 const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY as string;
 
@@ -31,15 +36,39 @@ app.use(express.urlencoded({ extended: true }));
 
 // Database connection
 const connection = mysql.createConnection({
-  host: "db",
-  user: "admin",
-  password: "1234",
-  database: "shotping"
+  host: MYSQL_HOST,
+  user: MYSQL_USER,
+  password: MYSQL_PASSWORD,
+  database: MYSQL_DATABASE
+});
+// Product Table creation
+connection.then(async (conn) => {
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS product (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      product_name VARCHAR(100),
+      product_price INT,
+      product_stock INT,
+      product_buy INT,
+      image_url VARCHAR(100)
+    )
+  `);
+}).catch((error) => {
+  console.error(error);
 });
 
-// Table creation
+
+// Recogimg Table creation
 connection.then(async (conn) => {
-  await conn.query(`CREATE TABLE IF NOT EXISTS recogimg (id INT AUTO_INCREMENT PRIMARY KEY, imgurl VARCHAR(255), imgresult VARCHAR(255))`);
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS recogimgs (
+      id INT AUTO_INCREMENT PRIMARY KEY, 
+      image_url VARCHAR(100), 
+      ai_predict VARCHAR(100), 
+      is_correct TINYINT(1), 
+      feedback_text VARCHAR(255)
+    )
+  `);
 }).catch((error) => {
   console.error(error);
 });
@@ -65,7 +94,9 @@ app.post('/recognition', upload.single('upload'), async (req: Request, res: Resp
     const imageUrl = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
     
     // Insert the image URL into the database and get the inserted id
-    const [insertResults] = await (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
+    // const [insertResults] = await (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);
+    const [insertResults] = await (await connection).query(`INSERT INTO recogimgs (image_url, ai_predict, is_correct, feedback_text) 
+    VALUES (?, NULL, 0, NULL)`, [imageUrl]);
     const imgId = (insertResults as mysql.OkPacket).insertId;
     
     const formData = new FormData();
@@ -76,12 +107,13 @@ app.post('/recognition', upload.single('upload'), async (req: Request, res: Resp
 
     formData.append('id', imgId.toString());
     
-    await axios.post("http://flask-service:5000/test_predict", formData, {
+    const predictResult=await axios.post("http://flask-service:5000/test_predict", formData, {
       headers: {
         ...formData.getHeaders(),
       },
     });
-
+     // Assume the predictResult.data contains the product names
+    //  const productNames = predictResult.data;
 
     // Insert the image URL into the database
     // (await connection).query(`INSERT INTO recogimg (imgurl) VALUES (?)`, [imageUrl]);

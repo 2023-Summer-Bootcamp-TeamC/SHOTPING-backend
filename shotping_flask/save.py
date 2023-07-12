@@ -1,8 +1,10 @@
 from sqlalchemy import create_engine, Table, MetaData, Column, String, INTEGER
 from sqlalchemy.orm import sessionmaker
-
+import os
 def save_image(id, prediction):
-    engine = create_engine("mysql+pymysql://admin:1234@db/shotping")
+    engine = create_engine(f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DATABASE')}")
+
+    # engine = create_engine("mysql+pymysql://admin:1234@db/shotping")
     
     # 세션 생성
     Session = sessionmaker(bind=engine)
