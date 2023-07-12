@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine, Table, MetaData, Column, String, INTEGER
 from sqlalchemy.orm import sessionmaker
 import os
-def save_image(id, prediction):
-    engine = create_engine(f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DATABASE')}")
 
-    # engine = create_engine("mysql+pymysql://admin:1234@db/shotping")
+def save_image(id, prediction):
+    # engine = create_engine(f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}/{os.getenv('MYSQL_DATABASE')}")
+
+    engine = create_engine("mysql+pymysql://user:1234@shotping-mysql.co7pnzdwwqty.ap-southeast-2.rds.amazonaws.com/shotping")
     
     # 세션 생성
     Session = sessionmaker(bind=engine)
@@ -14,16 +15,16 @@ def save_image(id, prediction):
     metadata = MetaData()
     metadata.reflect(bind=engine)
     # 이미 있는 테이블에 연결
-    data = Table('recogimg', metadata, autoload_with=engine)
+    data = Table('recogimgs', metadata, autoload_with=engine)
 
     try:
         # 데이터 수정
         if session.query(data).filter_by(id=id).first():
-            update_stmt = data.update().where(data.c.id==id).values(imgresult=prediction)
+            update_stmt = data.update().where(data.c.id==id).values(ai_predict=prediction)
             session.execute(update_stmt)
         # id가 없다면, 데이터 삽입
         else:
-            insert_stmt = data.insert().values(id=id, imgresult=prediction)
+            insert_stmt = data.insert().values(id=id, ai_predict=prediction)
             session.execute(insert_stmt)
 
         session.commit()

@@ -8,8 +8,6 @@ services:
       - 8080:8080
     volumes:
       - .:/usr/src/app
-    depends_on:
-      - db
     environment:
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_USER=${MYSQL_USER}
@@ -28,18 +26,6 @@ services:
     volumes:
       - ./shotping_flask:/app
     command: gunicorn -b :5000 app:app
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_HOST: ${MYSQL_HOST}
-    volumes:
-      - db-data:/var/lib/mysql
-    ports:
-      - 3306:3306
   rabbitmq:
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
@@ -60,5 +46,3 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: celery -A tasks worker --loglevel=info --pool=threads
-volumes:
-  db-data:
