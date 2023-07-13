@@ -180,7 +180,7 @@ app.post('/api/v1/feedback', async (req: Request, res: Response) => {
 
 app.get("/api/v1/products", async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1; // 디폴트 값: 1
-  const limit = 5;
+  const limit = 8;
   const offset = (page - 1) * limit;
 
   try {
@@ -226,7 +226,11 @@ app.get("/api/v1/search", async (req: Request, res: Response) => {
   try {
     const lowerKeyword = keyword.toLowerCase();
     const products = await Product.findAll({
-      where: Sequelize.where(Sequelize.fn('lower', Sequelize.col('product_name')), 'LIKE', `%${lowerKeyword}%`),
+      where: Sequelize.where(
+        Sequelize.fn('lower', Sequelize.col('product_name')),
+        'LIKE',
+        `%${lowerKeyword}%`
+      ),
       attributes: ['product_name', 'product_price', 'product_stock', 'image_url'],
     });
 
@@ -239,6 +243,23 @@ app.get("/api/v1/search", async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: "Error retrieving product data" });
+  }
+});
+
+app.get('/api/v1/popular', async (req: Request, res: Response) => {
+  const n = 5; // 상위 n개의 상품
+
+  try {
+    const popularProducts = await Product.findAll({
+      limit: n,
+      order: [['product_buy', 'DESC']],
+      attributes: ['product_name', 'product_price', 'product_buy', 'image_url']
+    });
+
+    res.status(200).json(popularProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Error retrieving popular products data" });
   }
 });
 
