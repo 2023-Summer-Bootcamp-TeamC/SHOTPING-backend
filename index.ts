@@ -149,7 +149,7 @@ app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: R
 
 app.get("/api/v1/products", async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1; // 디폴트 값: 1
-  const limit = 5;
+  const limit = 8;
   const offset = (page - 1) * limit;
 
   try {
@@ -195,7 +195,11 @@ app.get("/api/v1/search", async (req: Request, res: Response) => {
   try {
     const lowerKeyword = keyword.toLowerCase();
     const products = await Product.findAll({
-      where: Sequelize.where(Sequelize.fn('lower', Sequelize.col('product_name')), 'LIKE', `%${lowerKeyword}%`),
+      where: Sequelize.where(
+        Sequelize.fn('lower', Sequelize.col('product_name')),
+        'LIKE',
+        `%${lowerKeyword}%`
+      ),
       attributes: ['product_name', 'product_price', 'product_stock', 'image_url'],
     });
 
