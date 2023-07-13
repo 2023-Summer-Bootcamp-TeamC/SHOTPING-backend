@@ -211,6 +211,23 @@ app.get("/api/v1/search", async (req: Request, res: Response) => {
   }
 });
 
+app.get('/api/v1/popular', async (req: Request, res: Response) => {
+  const n = 5; // 상위 n개의 상품
+
+  try {
+    const popularProducts = await Product.findAll({
+      limit: n,
+      order: [['product_buy', 'DESC']],
+      attributes: ['product_name', 'product_price', 'product_buy', 'image_url']
+    });
+
+    res.status(200).json(popularProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Error retrieving popular products data" });
+  }
+});
+
 app.listen(port, () => console.log("Server is running at port 8080"));
 
 sequelize.sync();
