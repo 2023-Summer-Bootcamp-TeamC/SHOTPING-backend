@@ -2,12 +2,10 @@ import express, { Request, Response } from "express";
 import multer from "multer";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
-import mysql from "mysql2/promise";
 import axios ,{ AxiosResponse }from 'axios';
 import FormData from "form-data";
-import { Sequelize } from "sequelize";
-import { Op } from 'sequelize'; // Ensure this import is at the top of your file
-
+import { Sequelize, Op } from "sequelize";// Ensure this import is at the top of your file
+ 
 // @ts-ignore
 import { Product, Data } from "./models"; //모듈에 대한 타압검사를 받지 않도록 함
 
@@ -53,7 +51,9 @@ app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: R
   }
 
   const file = req.file;
-  const key = `photosave/${Date.now().toString()}_${file.originalname}`;
+  
+  // 서버로 데이터를 전송할 때 사용하는 Formdata를 사용
+  // 파일과 같은 바이너리 데이터를 전송할 때 유용하다.
   try{
   const formData = new FormData();
   formData.append('image', file.buffer, {
@@ -73,7 +73,7 @@ app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: R
   let taskResult = null;
   do {
   // Wait for 5 seconds before checking the result again
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 600));
 
     // Check the task result
     const taskResultResponse: AxiosResponse = await axios.get(`http://flask-service:5000/result/${taskId}`);
@@ -89,11 +89,9 @@ app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: R
   // Print the result
   const productQuantities = JSON.parse(taskResult.result);
 
-  console.log('Product quantities:', productQuantities);
   // Parse the product IDs and quantities
   const productIds = Object.keys(productQuantities).map(id => parseInt(id));
-  // Fetch products from the database
-  console.log(productIds)
+
   // Fetch the corresponding products from the database
   const products = await Product.findAll({
     where: {
@@ -114,6 +112,7 @@ app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: R
 
   // Construct the output products array
   let outputProducts: IProduct[] = [];
+
   products.forEach((product: Product) => {
     const productData: IProduct = product.get({ plain: true });
     const quantity = productQuantities[product.id.toString()];
@@ -121,9 +120,9 @@ app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: R
       outputProducts.push(productData);
     }
   });
-  res.status(200).send({ outputProducts });
-
   //S3연결
+  const key = `photosave/${Date.now().toString()}_${file.originalname}`;
+
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
@@ -141,9 +140,41 @@ app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: R
   image_url: imageUrl,
   ai_predict: taskResult.result
   });
+
+  res.status(200).send({ outputProducts, data_id: data.id });
+  
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: 'Error processing file upload' });
+  }
+});
+
+app.post('/api/v1/feedback', async (req: Request, res: Response) => {
+  
+  const { data_id, iscorrect, feedback_text } = req.body;
+ 
+  if (data_id === undefined || iscorrect === undefined) {
+    res.status(400).send({ error: '사진이 맞는지 대답해주세요!' });
+    return;
+  }
+
+  const feedbackText = feedback_text || null;
+
+  try {
+    
+    const dataRow = await Data.findByPk(data_id);
+
+    if (!dataRow) {
+      res.status(404).send({ error: 'No data found with the provided data_id' });
+      return;
+    }
+
+    await dataRow.update({ iscorrect, feedback_text: feedbackText });
+
+    res.status(200).send({ success: 'Feedback received' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'Error processing feedback' });
   }
 });
 

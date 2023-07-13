@@ -26,10 +26,6 @@ services:
     volumes:
       - ./shotping_flask:/app
     environment:
-    - MYSQL_HOST=${MYSQL_HOST}
-    - MYSQL_USER=${MYSQL_USER}
-    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    - MYSQL_DATABASE=${MYSQL_DATABASE}
     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: gunicorn -b :5000 app:app
@@ -50,10 +46,6 @@ services:
     depends_on:
       - rabbitmq
     environment:
-    - MYSQL_HOST=${MYSQL_HOST}
-    - MYSQL_USER=${MYSQL_USER}
-    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    - MYSQL_DATABASE=${MYSQL_DATABASE}
     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: celery -A tasks worker --loglevel=info --pool=threads
