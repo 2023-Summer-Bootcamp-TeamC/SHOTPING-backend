@@ -39,7 +39,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const app: express.Express = express();
-const port = 8080;
+const port = 8081;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -263,6 +263,6 @@ app.get('/api/v1/popular', async (req: Request, res: Response) => {
   }
 });
 
-app.listen(port, () => console.log("Server is running at port 8080"));
+app.listen(port, () => console.log(`Server is running at port ${port}`));
 
 sequelize.sync();
