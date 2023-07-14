@@ -39,7 +39,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const app: express.Express = express();
-const port = 8081;
+const port = 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
