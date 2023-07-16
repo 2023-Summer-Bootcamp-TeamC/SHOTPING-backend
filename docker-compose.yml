@@ -30,6 +30,7 @@ services:
     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: gunicorn -b :5000 app:app
   rabbitmq:
+    container_name: rabbitmq
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
     restart: unless-stopped # 컨테이너 종료시 (재시작여부) 종료 코드와 상관없이 컨테이너가 다시시작하지만 서비스가 중지되거나 제거되면 다시 시작을 중지
@@ -40,6 +41,7 @@ services:
       - 5672:5672 #rabbitmq AMQP 기본 포트 번호
       - 15672:15672 #Rabbitmq web
   celery:
+    container_name: celery
     build: ./shotping_flask
     volumes:
       - ./shotping_flask:/code
@@ -50,6 +52,7 @@ services:
     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: celery -A tasks worker --loglevel=info --pool=threads
   prometheus:
+    container_name: prometheus
     image: prom/prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -62,6 +65,7 @@ services:
     ports:
       - 9090:9090
   cadvisor:
+    container_name: cadvisor
     image: google/cadvisor
     volumes:
       - /:/rootfs:ro
@@ -71,6 +75,7 @@ services:
     ports:
       - 8081:8080
   grafana:
+    container_name: grafana
     image: grafana/grafana
     ports:
       - 3000:3000
@@ -79,6 +84,7 @@ services:
     depends_on:
       - prometheus
   node-exporter:
+    container_name: node-exporter
     image: prom/node-exporter
     volumes:
       - /proc:/host/proc:ro
