@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import axios ,{ AxiosResponse }from 'axios';
 import FormData from "form-data";
 import { Sequelize, Op } from "sequelize";// Ensure this import is at the top of your file
- 
+import promBundle from "express-prom-bundle";
 // @ts-ignore
 import { Product, Data } from "./models"; //모듈에 대한 타압검사를 받지 않도록 함
 
@@ -43,6 +43,12 @@ const port = 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true
+});
+
+app.use(metricsMiddleware);
 
 app.post('/api/v1/predict', upload.single('upload'), async (req: Request, res: Response) => {
   if (!req.file) {
@@ -263,6 +269,6 @@ app.get('/api/v1/popular', async (req: Request, res: Response) => {
   }
 });
 
-app.listen(port, () => console.log("Server is running at port 8080"));
+app.listen(port, () => console.log(`Server is running at port ${port}`));
 
 sequelize.sync();
