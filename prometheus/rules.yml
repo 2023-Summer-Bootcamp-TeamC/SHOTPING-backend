@@ -1,0 +1,38 @@
+groups:
+- name: example
+  rules:
+  # cpu 사용량 80% 이상일 때
+  - alert: high_cpu_usage
+    expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: High CPU usage
+  
+  # 메모리 사용량 80% 이상일 때
+  - alert: high_memory_usage
+    expr: node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes > (0.8 * node_memory_MemTotal_bytes)
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: High memory usage
+
+  # 0.5초 이상 요청 지연이 될 때
+  - alert: high_request_latency
+    expr: job:request_latency_seconds:mean5m{job="node-service"} > 0.5
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: High request latency in node-service
+
+  # 서비스가 다운됐을 때
+  - alert: service_down
+    expr: up == 0
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: Service down
