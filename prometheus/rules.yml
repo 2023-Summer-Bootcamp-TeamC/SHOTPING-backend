@@ -3,7 +3,7 @@ groups:
   rules:
   # cpu 사용량 80% 이상일 때
   - alert: HighCPU
-    expr: 100 - (avg by(instance)(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 1
+    expr: 100 - (avg by(instance)(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
     for: 1m
     labels:
       severity: critical
@@ -12,7 +12,7 @@ groups:
 
   # 메모리 사용량 80% 이상일 때
   - alert: HighMemory
-    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 1
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
     for: 1m
     labels:
       severity: warning
@@ -20,7 +20,7 @@ groups:
       summary: High Memory usage
 
   # 0.5초 이상 요청 지연이 될 때
-  - alert: high_request_latency
+  - alert: HighRequestLatency
     expr: job:request_latency_seconds:mean5m{job="node-service"} > 0.5
     for: 2m
     labels:
