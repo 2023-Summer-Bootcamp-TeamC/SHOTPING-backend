@@ -294,6 +294,34 @@ app.get("/api/v1/payment/fail", async (req, res) => {
   res.redirect("/fail");
 });
 
+app.post("/api/v1/order", async (req, res) => {
+  const data = req.body.data;
+  try {
+    for (let item of data) {
+      const { product_id, product_stock, product_buy } = item;
+
+      let product = await Product.findOne({ where: { id: product_id } });
+
+      if (product) {
+        product.product_stock -= product_stock;
+        product.product_buy += product_buy;
+        await product.save();
+      } else {
+        res
+          .status(404)
+          .json({ error: `Product with id ${product_id} not found` });
+        return;
+      }
+    }
+    res.json({ success: "Product data updated successfully." });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating product data." });
+  }
+});
+
 app.get("/api/v1/products", async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1; // 디폴트 값: 1
   const limit = 8;
