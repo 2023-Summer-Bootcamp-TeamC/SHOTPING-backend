@@ -102,6 +102,44 @@ services:
       - ./alertmanager:/etc/alertmanager
     ports:
       - 9093:9093
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.2
+    ports:
+      - "9600:9600"
+    volumes:
+      - ./logstash/config:/usr/share/logstash/config
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.2
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.8.2
+    entrypoint: "filebeat -e -strict.perms=false"
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs:/usr/share/filebeat/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - elasticsearch
+      - logstash
 volumes:
   prometheus_data: {}
   grafana_data: {}
+  esdata :
