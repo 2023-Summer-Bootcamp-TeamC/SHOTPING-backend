@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction  } from "express";
 import multer from "multer";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
@@ -8,6 +8,9 @@ import { Sequelize, Op } from "sequelize"; // Ensure this import is at the top o
 import promBundle from "express-prom-bundle";
 // @ts-ignore
 import { Product, Data } from "./models"; //모듈에 대한 타압검사를 받지 않도록 함
+import winston from 'winston';
+import 'winston-daily-rotate-file';
+
 
 dotenv.config();
 
@@ -42,6 +45,43 @@ const app: express.Express = express();
 const port = 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Logging with Winston
+const logFormat = winston.format.printf(({ level, message, timestamp }) => {
+  return `${timestamp} ${level}: ${message}`;
+});
+
+const transport = new winston.transports.DailyRotateFile({
+  dirname: 'logs',
+  filename: 'application-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  zippedArchive: true,
+  maxSize: '20m',
+  maxFiles: '14d'
+});
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    logFormat
+  ),
+  transports: [
+    transport
+  ],
+});
+
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url} ${req.ip}`);
+  next();
+});
+
+// Error handling
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  logger.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
 
 const metricsMiddleware = promBundle({
   includeMethod: true,
