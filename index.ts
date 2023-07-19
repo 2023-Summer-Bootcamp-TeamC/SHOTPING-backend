@@ -231,6 +231,7 @@ const headers = {
   Authorization: "KakaoAK " + "031388ca62ad8dcdc499a3ac1ae91d56",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
 };
+
 app.post("/api/v1/payment", async (req: Request, res: Response) => {
   const { total_amount } = req.body;
   if (typeof total_amount !== "number" || total_amount < 0) {
