@@ -11,32 +11,15 @@ import { Product, Data } from "./models"; //모듈에 대한 타압검사를 받
 import winston from "winston";
 import "winston-daily-rotate-file";
 import * as queryString from "querystring";
+import sequelize from "./config/database";
+import s3Client from "./config/s3Client";
+import logger from "./config/logger";
+import feedbackRouter from "./routers/feedbackRouter";
 
 dotenv.config();
 
 const REGION = "ap-northeast-2";
 const BUCKET_NAME = "bootcamp-shotping";
-// 환경변수에서 정보 불러오기
-const MYSQL_HOST = process.env.MYSQL_HOST as string;
-const MYSQL_USER = process.env.MYSQL_USER as string;
-const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD as string;
-const MYSQL_DATABASE = process.env.MYSQL_DATABASE as string;
-const ACCESS_KEY = process.env.ACCESS_KEY as string;
-const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY as string;
-
-const s3Client = new S3Client({
-  region: REGION,
-  credentials: {
-    accessKeyId: ACCESS_KEY,
-    secretAccessKey: SECRET_ACCESS_KEY,
-  },
-});
-
-const sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, {
-  host: MYSQL_HOST,
-  dialect: "mysql",
-  logging: false,
-});
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -49,26 +32,6 @@ app.use(express.urlencoded({ extended: true }));
 // Logging with Winston
 const logFormat = winston.format.printf(({ level, message, timestamp }) => {
   return `${timestamp} ${level}: ${message}`;
-});
-
-const transport = new winston.transports.DailyRotateFile({
-  dirname: "logs",
-  filename: "application-%DATE%.log",
-  datePattern: "YYYY-MM-DD",
-  zippedArchive: true,
-  maxSize: "20m",
-  maxFiles: "14d",
-});
-
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(winston.format.timestamp(), logFormat),
-  transports: [transport],
-});
-
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.url} ${req.ip}`);
-  next();
 });
 
 // Error handling
@@ -198,34 +161,7 @@ app.post(
   }
 );
 
-app.post("/api/v1/feedback", async (req: Request, res: Response) => {
-  const { data_id, iscorrect, feedback_text } = req.body;
-
-  if (data_id === undefined || iscorrect === undefined) {
-    res.status(400).send({ error: "사진이 맞는지 대답해주세요!" });
-    return;
-  }
-
-  const feedbackText = feedback_text || null;
-
-  try {
-    const dataRow = await Data.findByPk(data_id);
-
-    if (!dataRow) {
-      res
-        .status(404)
-        .send({ error: "No data found with the provided data_id" });
-      return;
-    }
-
-    await dataRow.update({ iscorrect, feedback_text: feedbackText });
-
-    res.status(200).send({ success: "Feedback received" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Error processing feedback" });
-  }
-});
+app.use("/api/v1/feedback", feedbackRouter);
 
 const headers = {
   Authorization: "KakaoAK " + "031388ca62ad8dcdc499a3ac1ae91d56",
