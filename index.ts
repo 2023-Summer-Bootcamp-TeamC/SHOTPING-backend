@@ -18,6 +18,7 @@ import paymentRouter from "./routers/paymentRouter";
 import orederRouter from "./routers/orderRouter";
 import productsRouter from "./routers/productsRouter";
 import searchRouter from "./routers/searchRouter";
+import popularRouter from "./routers/popularRouter";
 
 dotenv.config();
 
@@ -174,22 +175,7 @@ app.use("/api/v1/products", productsRouter);
 
 app.use("/api/v1/search", searchRouter);
 
-app.get("/api/v1/popular", async (req: Request, res: Response) => {
-  const n = 5; // 상위 n개의 상품
-
-  try {
-    const popularProducts = await Product.findAll({
-      limit: n,
-      order: [["product_buy", "DESC"]],
-      attributes: ["product_name", "product_price", "product_buy", "image_url"],
-    });
-
-    res.status(200).json(popularProducts);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Error retrieving popular products data" });
-  }
-});
+app.use("/api/v1/popular", popularRouter);
 
 app.listen(port, () => console.log(`Server is running at port ${port}`));
 
