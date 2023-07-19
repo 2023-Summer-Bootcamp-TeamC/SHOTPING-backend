@@ -1,4 +1,5 @@
 import winston from "winston";
+import "winston-daily-rotate-file";
 
 // Logging with Winston
 const logFormat = winston.format.printf(({ level, message, timestamp }) => {
