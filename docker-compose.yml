@@ -27,9 +27,20 @@ services:
     volumes:
       - ./shotping_flask:/app
     environment:
-    - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-    - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: gunicorn -b :5000 app:app
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443 #https에 대한 포트설정
+    volumes:
+      - build_folder:/var/www/shotping #depends_on:  - backend- frontend가 아래에 추가되어야 함 현재는 설정이 아예 안되어있음
+    restart: always
 
   rabbitmq:
     container_name: rabbitmq
@@ -51,8 +62,8 @@ services:
     depends_on:
       - rabbitmq
     environment:
-    - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-    - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: celery -A tasks worker --loglevel=info --pool=threads
 
   prometheus:
@@ -62,10 +73,10 @@ services:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
     ports:
       - 9090:9090
 
@@ -98,9 +109,9 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
     ports:
       - 9100:9100
 
@@ -121,7 +132,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # <-- 힙 사이즈 설정
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m # <-- 힙 사이즈 설정
     mem_limit: 512m
 
   logstash:
@@ -161,4 +172,5 @@ services:
 volumes:
   prometheus_data: {}
   grafana_data: {}
-  esdata :
+  esdata:
+  build_folder:
