@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import multer from "multer";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import axios, { AxiosResponse } from "axios";
 import FormData from "form-data";
@@ -10,11 +10,11 @@ import promBundle from "express-prom-bundle";
 import { Product, Data } from "./models"; //모듈에 대한 타압검사를 받지 않도록 함
 import winston from "winston";
 import "winston-daily-rotate-file";
-import * as queryString from "querystring";
 import sequelize from "./config/database";
 import s3Client from "./config/s3Client";
 import logger from "./config/logger";
 import feedbackRouter from "./routers/feedbackRouter";
+import paymentRouter from "./routers/paymentRouter";
 
 dotenv.config();
 
@@ -163,73 +163,7 @@ app.post(
 
 app.use("/api/v1/feedback", feedbackRouter);
 
-const headers = {
-  Authorization: "KakaoAK " + "031388ca62ad8dcdc499a3ac1ae91d56",
-  "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-};
-
-app.post("/api/v1/payment", async (req: Request, res: Response) => {
-  const { total_amount } = req.body;
-  if (typeof total_amount !== "number" || total_amount < 0) {
-    return res.status(400).send("결과값이 오지 않았습니다.");
-  }
-
-  const params = queryString.stringify({
-    // Convert to url-encoded string
-    cid: "TC0ONETIME",
-    partner_order_id: "938503",
-    partner_user_id: "user",
-    item_name: "물품",
-    quantity: 1,
-    total_amount: total_amount,
-    vat_amount: 200,
-    tax_free_amount: 0,
-    approval_url: "https://your-success-url.com",
-    cancel_url: "https://your-cancel-url.com",
-    fail_url: "https://your-fail-url.com",
-  });
-
-  try {
-    const kakaoApiResponse = await axios.post(
-      "https://kapi.kakao.com/v1/payment/ready",
-      params,
-      { headers }
-    );
-    res.status(200).send({
-      next_redirect_pc_url: kakaoApiResponse.data.next_redirect_pc_url,
-    });
-  } catch (error) {
-    console.error("Error calling Kakao API", error);
-    res.status(500).send("결제 오류");
-  }
-});
-
-app.get("/api/v1/payment/success", async (req, res) => {
-  const params = {
-    cid: "TC0ONETIME",
-    partner_order_id: "1001",
-    partner_user_id: "testuser",
-    pg_token: req.query.pg_token,
-  };
-
-  try {
-    await axios.post("https://kapi.kakao.com/v1/payment/approve", params, {
-      headers,
-    });
-    res.redirect("/success");
-  } catch (error) {
-    console.error("Error calling Kakao API", error);
-    res.redirect("/fail");
-  }
-});
-
-app.get("/api/v1/payment/cancel", async (req, res) => {
-  res.redirect("/cancel");
-});
-
-app.get("/api/v1/payment/fail", async (req, res) => {
-  res.redirect("/fail");
-});
+app.use("/api/v1/payment", paymentRouter);
 
 app.post("/api/v1/order", async (req, res) => {
   const data = req.body.data;
