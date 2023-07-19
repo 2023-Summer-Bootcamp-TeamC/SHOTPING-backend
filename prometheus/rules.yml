@@ -1,7 +1,7 @@
 groups:
 - name: example
   rules:
-  # cpu 사용량 80% 이상일 때
+  # cpu 사용량 80% 이상일 때 (1m)
   - alert: HighCPU
     expr: 100 - (avg by(instance)(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
     for: 1m
@@ -10,7 +10,7 @@ groups:
     annotations:
       summary: High CPU usage
 
-  # 메모리 사용량 80% 이상일 때
+  # 메모리 사용량 80% 이상일 때 (1m)
   - alert: HighMemory
     expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
     for: 1m
@@ -19,7 +19,7 @@ groups:
     annotations:
       summary: High Memory usage
 
-  # 0.5초 이상 요청 지연이 될 때
+  # 0.5초 이상 요청 지연이 될 때 (2m)
   - alert: HighRequestLatency
     expr: job:request_latency_seconds:mean5m{job="node-service"} > 0.5
     for: 2m
@@ -28,7 +28,7 @@ groups:
     annotations:
       summary: High request latency in node-service
 
-  # 서비스가 다운됐을 때
+  # 서비스가 다운됐을 때 (5m)
   - alert: InstanceDown
     expr: up == 0
     for: 5m
@@ -36,3 +36,14 @@ groups:
       severity: critical
     annotations:
       summary: Instance {{ $labels.instance }} down
+
+  # 4xx 또는 5xx 상태코드 요청의 총 개수가 10 초과일 때 (5m)
+  rules:
+  - alert: HighErrorCount
+    expr: sum(increase(http_requests_total{status_code=~"4..|5.."}[5m])) > 10
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: High error count detected
+      description: 'More than 10 errors have been detected in the last 5 minutes: {{ $value }}'
