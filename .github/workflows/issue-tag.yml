@@ -5,15 +5,13 @@ on:
     types: [opened, closed]
 
 jobs:
-  label:
+  label_issues:
     runs-on: ubuntu-latest
-
     steps:
       - name: Label new issues
         if: github.event.action == 'opened' #이슈를 오픈했을 때 동작
         uses: actions/github-script@v6
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.rest.issues.addLabels({
               owner: context.repo.owner,
@@ -21,12 +19,10 @@ jobs:
               issue_number: context.issue.number,
               labels: ['opened']
             })
-
       - name: Label closed issues
         if: github.event.action == 'closed' #이슈를 닫았을 때 동작
         uses: actions/github-script@v6
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.rest.issues.addLabels({
               owner: context.repo.owner,
