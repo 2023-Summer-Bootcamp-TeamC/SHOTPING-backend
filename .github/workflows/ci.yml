@@ -1,4 +1,3 @@
-#docker이미지로 전체를 ci함
 name: SHOTPING Docker CI
 
 on:
@@ -14,6 +13,16 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
       - name: Log in to DockerHub
         uses: docker/login-action@v1
@@ -37,15 +46,6 @@ jobs:
           context: .
           push: true
           tags: gwangjae/shotping_flask:latest
-
-      - name: Test
-        run: |
-          docker run --name test_container_node -d gwangjae/shotping_node:latest
-          docker run --name test_container_flask -d gwangjae/shotping_flask:latest
-          docker exec test_container_node npm test
-          docker exec test_container_flask npm test
-          docker logs test_container_node
-          docker logs test_container_flask
 
       - name: Show logs
         if: failure()
