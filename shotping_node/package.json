@@ -6,7 +6,7 @@
     "build": "tsc",
     "start": "nodemon --delay 1 --exec ts-node ./index.ts",
     "dev": "nodemon --delay 1 --exec ts-node ./index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +36,7 @@
     "@types/node": "^20.4.1",
     "@types/sequelize": "^4.28.15",
     "concurrently": "^8.2.0",
+    "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.3",
