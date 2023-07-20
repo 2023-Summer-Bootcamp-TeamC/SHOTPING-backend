@@ -31,16 +31,16 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: gunicorn -b :5000 app:app
 
-  # nginx:
-  #   build:
-  #     context: ./nginx
-  #   container_name: nginx
-  #   ports:
-  #     - 80:80
-  #     - 443:443 #https에 대한 포트설정
-  #   volumes:
-  #     - build_folder:/var/www/shotping #depends_on:  - backend- frontend가 아래에 추가되어야 함 현재는 설정이 아예 안되어있음
-  #   restart: always
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443 #https에 대한 포트설정
+    volumes:
+      - build_folder:/var/www/shotping #depends_on:  - backend- frontend가 아래에 추가되어야 함 현재는 설정이 아예 안되어있음
+    restart: always
 
   rabbitmq:
     container_name: rabbitmq
@@ -147,7 +147,7 @@ services:
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
     restart: unless-stopped
-
+    mem_limit: 512m
   logstash:
     build:
       context: ./logstash
@@ -167,6 +167,7 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
+    mem_limit: 512m
 
   kibana:
     build:
@@ -182,6 +183,7 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
+    mem_limit: 512m
 
   filebeat:
     build:
@@ -197,6 +199,7 @@ services:
       - logstash
       - elasticsearch
       - kibana
+    mem_limit: 512m
 
 
 volumes:
