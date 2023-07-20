@@ -1,25 +1,32 @@
-name: issue tagging
-
+name: Label issues
 on:
   issues:
-    types:
-      - reopened
-      - opened
-
+    types: [opened, closed]
 jobs:
-  label_issues:
+  label:
     runs-on: ubuntu-latest
-
-    permissions:
-      issues: write
-
     steps:
-      - uses: actions/github-script@v6
+      - name: Label new issues
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
         with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.rest.issues.addLabels({
-              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ["good"]
+              issue_number: context.issue.number,
+              labels: ['untriaged']
+            })
+      - name: Label closed issues
+        if: github.event.action == 'closed'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['closed']
             })
