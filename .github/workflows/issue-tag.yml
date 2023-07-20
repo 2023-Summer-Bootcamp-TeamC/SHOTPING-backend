@@ -1,0 +1,32 @@
+name: Label issues
+on:
+  issues:
+    types: [opened, closed]
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label new issues
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.MY_GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['untriaged']
+            })
+      - name: Label closed issues
+        if: github.event.action == 'closed'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.MY_GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['closed']
+            })
