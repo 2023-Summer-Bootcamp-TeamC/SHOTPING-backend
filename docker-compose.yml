@@ -31,16 +31,16 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     command: gunicorn -b :5000 app:app
 
-  nginx:
-    build:
-      context: ./nginx
-    container_name: nginx
-    ports:
-      - 80:80
-      - 443:443 #https에 대한 포트설정
-    volumes:
-      - build_folder:/var/www/shotping #depends_on:  - backend- frontend가 아래에 추가되어야 함 현재는 설정이 아예 안되어있음
-    restart: always
+  # nginx:
+  #   build:
+  #     context: ./nginx
+  #   container_name: nginx
+  #   ports:
+  #     - 80:80
+  #     - 443:443 #https에 대한 포트설정
+  #   volumes:
+  #     - build_folder:/var/www/shotping #depends_on:  - backend- frontend가 아래에 추가되어야 함 현재는 설정이 아예 안되어있음
+  #   restart: always
 
   rabbitmq:
     container_name: rabbitmq
@@ -126,54 +126,81 @@ services:
       - prometheus
 
   elasticsearch:
-    container_name: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
-    ports:
-      - "9200:9200"
+    build:
+      context: ./elasticsearch
+      args: 
+        ELASTIC_VERSION: 8.8.2
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - elasticsearch:/usr/share/elasticsearch/data:Z
+    ports:
+      - 9200:9200
+      - 9300:9300
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m # <-- 힙 사이즈 설정
-    mem_limit: 512m
+      node.name: elasticsearch
+      ES_JAVA_OPTS: -Xms256m -Xmx256m
+      # Bootstrap password.
+      # Used to initialize the keystore during the initial startup of
+      # Elasticsearch. Ignored on subsequent runs.
+      ELASTIC_PASSWORD: changeme
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
+      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+    restart: unless-stopped
 
   logstash:
-    container_name: logstash
-    image: docker.elastic.co/logstash/logstash:8.8.2
-    ports:
-      - "9600:9600"
+    build:
+      context: ./logstash
+      args:
+        ELASTIC_VERSION: 8.8.2
     volumes:
-      - ./logstash/config:/usr/share/logstash/config
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+    ports:
+      - 5044:5044
+      - 50000:50000/tcp
+      - 50000:50000/udp
+      - 9600:9600
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
+      LOGSTASH_INTERNAL_PASSWORD: changeme
     depends_on:
       - elasticsearch
-    mem_limit: 512m
+    restart: unless-stopped
 
   kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.8.2
+    build:
+      context: ./kibana
+      args:
+        ELASTIC_VERSION: 8.8.2
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
     ports:
-      - "5601:5601"
+      - 5601:5601
+    environment:
+      KIBANA_SYSTEM_PASSWORD: changeme
     depends_on:
       - elasticsearch
-    mem_limit: 512m
+    restart: unless-stopped
 
   filebeat:
-    container_name: filebeat
-    image: docker.elastic.co/beats/filebeat:8.8.2
+    build:
+      context: ./filebeat
+      args:
+        ELASTIC_VERSION: 8.8.2
     entrypoint: "filebeat -e -strict.perms=false"
     volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./logs:/usr/share/filebeat/logs
-      - /var/run/docker.sock:/var/run/docker.sock
+      # - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - elasticsearch
       - logstash
-    mem_limit: 512m
+      - elasticsearch
+      - kibana
+
 
 volumes:
   prometheus_data: {}
   grafana_data: {}
-  esdata:
   build_folder:
+  elasticsearch:
