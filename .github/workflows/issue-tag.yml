@@ -1,3 +1,5 @@
+#라벨을 사용함으로써 쫌 더 세부적인 이슈 정보를 알 수 있다.
+
 name: Label issues
 on:
   issues:
