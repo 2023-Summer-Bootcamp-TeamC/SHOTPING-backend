@@ -32,3 +32,8 @@ jobs:
         run: |
           docker-compose up -d
           docker-compose exec -T app npm test
+
+      - name: Show logs
+        if: failure()
+        run: |
+          docker-compose logs
