@@ -1,32 +1,25 @@
-name: Label issues
+name: issue tagging
 
 on:
   issues:
-    types: [opened, closed]
+    types:
+      - reopened
+      - opened
 
 jobs:
   label_issues:
     runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+
     steps:
-      - name: Label new issues
-        if: github.event.action == 'opened' #이슈를 오픈했을 때 동작
-        uses: actions/github-script@v6
+      - uses: actions/github-script@v6
         with:
           script: |
             github.rest.issues.addLabels({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              labels: ['opened']
-            })
-      - name: Label closed issues
-        if: github.event.action == 'closed' #이슈를 닫았을 때 동작
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              labels: ['closed']
+              labels: ["good"]
             })
