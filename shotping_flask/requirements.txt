@@ -46,3 +46,4 @@ typing_extensions==4.4.0
 Werkzeug==2.2.2
 zipp==3.11.0
 ultralytics==8.0.131
+pytest===7.4.0

@@ -2,12 +2,12 @@ version: "3"
 services:
   node-service:
     container_name: node-service
-    build: .
+    build: ./shotping_node
     restart: always
     ports:
       - 8080:8080
     volumes:
-      - .:/usr/src/app
+      - ./shotping_node:/usr/src/app
     environment:
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_USER=${MYSQL_USER}
