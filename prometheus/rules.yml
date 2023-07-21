@@ -38,7 +38,6 @@ groups:
       summary: Instance {{ $labels.instance }} down
 
   # 4xx 또는 5xx 상태코드 요청의 총 개수가 10 초과일 때 (5m)
-  rules:
   - alert: HighErrorCount
     expr: sum(increase(http_requests_total{status_code=~"4..|5.."}[5m])) > 10
     for: 5m
