@@ -183,6 +183,7 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
+    mem_limit: 512m
 
   filebeat:
     build:
