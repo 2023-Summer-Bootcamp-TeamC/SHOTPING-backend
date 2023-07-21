@@ -116,7 +116,6 @@ router.post(
       await s3Client.send(command);
       const imageUrl = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
 
-      // 이미지 URL과 ai_predict를 데이터베이스에 저장하는
       const data = await Data.create({
         image_url: imageUrl,
         ai_predict: taskResult.result,
