@@ -24,31 +24,9 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build and push Node service Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./shotping_node
-          push: true
-          tags: gwangjae/shotping_node:latest
-
-      - name: Build and push flask service Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./shotping_flask
-          push: true
-          tags: gwangjae/shotping_flask:latest
-
-      - name: Show logs
-        if: failure()
+      - name: Test
         run: |
+          docker exec test_container_node npm test
+          docker exec test_container_flask pytest
           docker logs test_container_node
           docker logs test_container_flask
