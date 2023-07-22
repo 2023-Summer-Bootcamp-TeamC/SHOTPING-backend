@@ -33,3 +33,5 @@ jobs:
         run: |
           cd shotping_node
           npm test
+        env:
+          NODE_ENV: test
