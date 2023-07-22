@@ -50,6 +50,12 @@ jobs:
           cd shotping_node
           npm install
 
+      - name: Print DB variables
+        run: |
+          echo DB_HOST=$DB_HOST
+          echo DB_USERNAME=$DB_USERNAME
+          echo DB_PASSWORD=$DB_PASSWORD
+
       - name: Run Node.js tests
         run: |
           cd shotping_node
