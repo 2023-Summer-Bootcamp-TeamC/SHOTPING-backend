@@ -14,7 +14,7 @@ jobs:
       db:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }} # github에 등록한 환경변수
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
         ports:
           - 3306:3306
@@ -33,7 +33,7 @@ jobs:
       - name: Verify MySQL connection
         run: |
           sudo apt-get install -y mysql-client
-          mysql --host=${{ job.services.db.networks.github_network.ip_address }} --port 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }}
+          mysql --host= ${{ secrets.MYSQL_HOST }} --port 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -56,7 +56,7 @@ jobs:
           npm test
         env:
           NODE_ENV: test
-          DB_HOST: db
+          DB_HOST: ${{ secrets.MYSQL_HOST }}
           DB_PORT: 3306
           DB_USERNAME: ${{ secrets.MYSQL_USER }}
           DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
