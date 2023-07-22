@@ -33,7 +33,7 @@ jobs:
       - name: Verify MySQL connection
         run: |
           sudo apt-get install -y mysql-client
-          mysql --host= ${{ secrets.MYSQL_HOST }} --port 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }}
+          mysql --host=${{ secrets.MYSQL_HOST }} --port 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
