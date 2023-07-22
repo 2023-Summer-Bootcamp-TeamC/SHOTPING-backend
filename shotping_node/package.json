@@ -6,9 +6,12 @@
     "build": "tsc",
     "start": "nodemon --delay 1 --exec ts-node ./index.ts",
     "dev": "nodemon --delay 1 --exec ts-node ./index.ts",
-    "test": "mocha -r ts-node/register test/**/*.ts"
+    "test": "mocha -r ts-node/register test/**/*.ts --timeout 10000"
   },
-  "keywords": [],
+  "keywords": [
+    "mocha",
+    "chai"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -31,15 +34,19 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
+    "@types/chai-http": "^4.2.0",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.17",
+    "@types/faker": "^6.6.9",
     "@types/mocha": "^10.0.1",
     "@types/mysql": "^2.15.21",
     "@types/node": "^20.4.1",
     "@types/sequelize": "^4.28.15",
     "@types/sinon": "^10.0.15",
+    "@types/supertest": "^2.0.12",
     "assert": "^2.0.0",
     "chai": "^4.3.7",
+    "chai-http": "^4.4.0",
     "concurrently": "^8.2.0",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
