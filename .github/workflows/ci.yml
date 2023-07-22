@@ -10,6 +10,16 @@ jobs:
   build: #Job 이름
     runs-on: ubuntu-latest
 
+    services: # 컨테이너, docker-compose 설정과 거의 유사
+      db:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }} # github에 등록한 환경변수
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -35,3 +45,7 @@ jobs:
           npm test
         env:
           NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USERNAME: ${{ secrets.MYSQL_USER }}
+          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
