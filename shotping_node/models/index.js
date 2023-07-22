@@ -15,10 +15,14 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
   sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    config
+    process.env.MYSQL_DATABASE,
+    process.env.MYSQL_USER,
+    process.env.MYSQL_PASSWORD,
+    {
+      ...config,
+      host: process.env.MYSQL_HOST,
+      logging: console.log, // <- debugging을 위한 로깅 옵션
+    }
   );
 }
 
