@@ -31,5 +31,5 @@ jobs:
 
       - name: Run Node.js tests
         run: |
-          cd shotping_node/test
+          cd shotping_node
           npm test
