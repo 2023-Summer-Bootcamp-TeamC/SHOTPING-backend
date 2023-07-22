@@ -28,7 +28,7 @@ jobs:
       - name: Verify MySQL connection
         run: |
           mysql --version 
-          mysql --host 127.0.0.1 --port 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_ROOT_PASSWORD }}
+          mysql --host db --port 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -56,7 +56,7 @@ jobs:
           npm test
         env:
           NODE_ENV: test
-          DB_HOST: 127.0.0.1
+          DB_HOST: db
           DB_PORT: 3306
           DB_USERNAME: ${{ secrets.MYSQL_USER }}
-          DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
