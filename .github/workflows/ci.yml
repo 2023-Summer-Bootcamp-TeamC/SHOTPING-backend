@@ -24,9 +24,12 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Test
+      - name: Install Node.js dependencies
         run: |
-          docker exec test_container_node npm test
-          docker exec test_container_flask pytest
-          docker logs test_container_node
-          docker logs test_container_flask
+          cd shotping_node
+          npm install
+
+      - name: Run Node.js tests
+        run: |
+          cd shotping_node/test
+          npm test
