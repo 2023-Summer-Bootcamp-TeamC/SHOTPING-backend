@@ -74,6 +74,8 @@ jobs:
 
       - name: Run Flask tests
         run: |
-          pytest shotping_flask
+          cd shotping_flask
+          pytest
         env:
           FLASK_ENV: testing
+          PYTHONPATH: ./shotping_flask
