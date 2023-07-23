@@ -10,9 +10,30 @@ jobs:
   build: #Job 이름
     runs-on: ubuntu-latest
 
+    services:
+      db:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+
+      - name: Setting .env
+        run: |
+          echo "${{ secrets.ENV }}" >> .env 
+          cat .env
+
+        # mysql 컨테이너 연결 확인
+      - name: Verify MySQL connection
+        run: |
+          sudo apt-get install -y mysql-client
+          mysql --host=${{ secrets.MYSQL_HOST }} --port 3306 -u ${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -24,31 +45,25 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build and push Node service Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./shotping_node
-          push: true
-          tags: gwangjae/shotping_node:latest
-
-      - name: Build and push flask service Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./shotping_flask
-          push: true
-          tags: gwangjae/shotping_flask:latest
-
-      - name: Show logs
-        if: failure()
+      - name: Install Node.js dependencies
         run: |
-          docker logs test_container_node
-          docker logs test_container_flask
+          cd shotping_node
+          npm install
+
+      - name: Print DB variables
+        run: |
+          echo MYSQL_HOST=${{ secrets.MYSQL_HOST }}
+          echo MYSQL_USER=${{ secrets.MYSQL_USER }}
+          echo MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+
+      - name: Run Node.js tests
+        run: |
+          cd shotping_node
+          npm test
+        env:
+          NODE_ENV: test
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          DB_PORT: 3306
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
