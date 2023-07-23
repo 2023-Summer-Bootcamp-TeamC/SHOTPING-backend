@@ -67,3 +67,15 @@ jobs:
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r shotping_flask/requirements.txt
+
+      - name: Run Flask tests
+        run: |
+          cd shotping_flask
+          pytest
+        env:
+          FLASK_ENV: testing
+          PYTHONPATH: ./shotping_flask
