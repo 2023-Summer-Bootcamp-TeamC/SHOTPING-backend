@@ -6,7 +6,7 @@
     "build": "tsc",
     "start": "nodemon --delay 1 --exec ts-node ./index.ts",
     "dev": "nodemon --delay 1 --exec ts-node ./index.ts",
-    "test": "mocha -r ts-node/register test/**/*.ts"
+    "test": "mocha -r ts-node/register -r dotenv/config test/**/*.ts"
   },
   "keywords": [
     "mocha",

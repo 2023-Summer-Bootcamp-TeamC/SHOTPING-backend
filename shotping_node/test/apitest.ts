@@ -6,10 +6,16 @@ import sinon from "sinon";
 import popularRouter from "../routers/popularRouter";
 import productsRouter from "../routers/productsRouter";
 import searchRouter from "../routers/searchRouter";
+import sequelize from "../config/database";
+import dotenv from "dotenv";
 //@ts-ignore
 import app from "../app";
 chai.use(chaiHttp);
 const expect = chai.expect;
+
+dotenv.config();
+
+sequelize.sync();
 
 const app = express();
 app.use("/api/v1/popular", popularRouter);
@@ -54,11 +60,11 @@ describe("GET /api/v1/products", function () {
 
 describe("GET /api/v1/search", function () {
   it("키워드로 상품 검색", function (done) {
-    const keyword = "딸기"; // 실제 테스트를 수행할 때는 데이터베이스에 존재하는 키워드를 사용하세요.
+    const keyword = "딸기";
 
     chai
       .request(app)
-      .get("/api/v1/search") // 검색 라우터의 실제 경로를 사용하세요.
+      .get("/api/v1/search")
       .query({ kw: keyword })
       .end(function (err, res) {
         if (err) done(err);

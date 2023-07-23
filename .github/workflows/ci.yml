@@ -52,9 +52,9 @@ jobs:
 
       - name: Print DB variables
         run: |
-          echo DB_HOST=$DB_HOST
-          echo DB_USERNAME=$DB_USERNAME
-          echo DB_PASSWORD=$DB_PASSWORD
+          echo MYSQL_HOST=${{ secrets.MYSQL_HOST }}
+          echo MYSQL_USER=${{ secrets.MYSQL_USER }}
+          echo MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
 
       - name: Run Node.js tests
         run: |
@@ -62,7 +62,8 @@ jobs:
           npm test
         env:
           NODE_ENV: test
-          DB_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
           DB_PORT: 3306
-          DB_USERNAME: ${{ secrets.MYSQL_USER }}
-          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
