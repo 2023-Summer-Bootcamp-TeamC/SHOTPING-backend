@@ -4,3 +4,4 @@ node_modules
 __pycache__
 shotping_flaksk/__pycache__/*
 alertmanager/alertmanager.yml
+logs
