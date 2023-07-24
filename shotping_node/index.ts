@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use((req: Request, res: Response, next: NextFunction) => {
 //   const start = new Date().getTime();
 
-//   res.on('finish', () => { 
+//   res.on('finish', () => {
 //     const duration = new Date().getTime() - start;
 //     logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
 //   });
@@ -46,7 +46,6 @@ const metricsMiddleware = promBundle({
 });
 
 const swaggerDocument = YAML.load("./swagger/swagger.yaml");
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(metricsMiddleware);
 
@@ -63,5 +62,7 @@ app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/search", searchRouter);
 
 app.use("/api/v1/popular", popularRouter);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(port, () => console.log(`Server is running at port ${port}`));
