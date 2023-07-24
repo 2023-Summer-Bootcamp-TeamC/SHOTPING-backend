@@ -11,6 +11,11 @@ import searchRouter from "./routers/searchRouter";
 import popularRouter from "./routers/popularRouter";
 import predictRouter from "./routers/predictRouter";
 
+//@ts-ignore
+import swaggerUi from "swagger-ui-express";
+//@ts-ignore
+import YAML from "yamljs";
+
 dotenv.config();
 
 const app: express.Express = express();
@@ -39,6 +44,9 @@ const metricsMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
 });
+
+const swaggerDocument = YAML.load("./swagger/swagger.yaml");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(metricsMiddleware);
 

@@ -1,0 +1,7 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: shotping API
+  description: connection API
+servers:
+  - url: http://localhost:8080
