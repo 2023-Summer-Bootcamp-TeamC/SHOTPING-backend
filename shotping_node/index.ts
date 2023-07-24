@@ -18,6 +18,18 @@ const port = 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// // Request 로그 저장
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   const start = new Date().getTime();
+
+//   res.on('finish', () => { 
+//     const duration = new Date().getTime() - start;
+//     logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
+//   });
+
+//   next();
+// });
+// 에러 로그 저장
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error(err.stack);
   res.status(500).send("Something broke!");

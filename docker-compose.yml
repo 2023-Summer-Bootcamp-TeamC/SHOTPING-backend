@@ -8,6 +8,7 @@ services:
       - 8080:8080
     volumes:
       - ./shotping_node:/usr/src/app
+      - ./logs:/usr/src/app/logs
     environment:
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_USER=${MYSQL_USER}
@@ -183,7 +184,7 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
-    mem_limit: 512m
+
 
   filebeat:
     build:

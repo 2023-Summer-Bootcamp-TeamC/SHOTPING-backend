@@ -1,5 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
+import logger from "../config/logger";
 // @ts-ignore
 import { Product, Data } from "../models";
 import { Op } from "sequelize";
@@ -123,8 +124,10 @@ router.post(
       });
 
       res.status(200).send({ outputProducts, data_id: data.id });
+      logger.info(`POST / - Image processing and product prediction successful`);
     } catch (error) {
       console.error(error);
+      logger.error(`POST / - Error: ${error}`);
       res.status(500).send({ error: "Error processing file upload" });
     }
   }

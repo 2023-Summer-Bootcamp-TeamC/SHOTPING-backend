@@ -1,5 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
+import logger from "../config/logger";
 // @ts-ignore
 import { Product } from "../models";
 import sequelize from "../config/database";
@@ -17,8 +18,10 @@ router.get("/", async (req: Request, res: Response) => {
     });
 
     res.status(200).json(popularProducts);
+    logger.info(`GET / - Successfully retrieved top ${n} products`);
+
   } catch (error) {
-    console.error(error);
+    logger.error(`GET / - Error: ${error}`);
     res.status(500).send({ error: "Error retrieving popular products data" });
   }
 });
