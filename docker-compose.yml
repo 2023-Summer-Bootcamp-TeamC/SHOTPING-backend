@@ -8,7 +8,6 @@ services:
       - 8080:8080
     volumes:
       - ./shotping_node:/usr/src/app
-      - ./logs:/usr/src/app/logs
     environment:
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_USER=${MYSQL_USER}
@@ -188,6 +187,7 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
+    mem_limit: 512m
 
 
   filebeat:
@@ -199,8 +199,7 @@ services:
     entrypoint: "filebeat -e -strict.perms=false"
     volumes:
       - ./elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./logs:/usr/share/filebeat/logs
-      # - /var/run/docker.sock:/var/run/docker.sock
+      - ./shotping_node/logs:/usr/share/filebeat/logs
     depends_on:
       - logstash
       - elasticsearch
