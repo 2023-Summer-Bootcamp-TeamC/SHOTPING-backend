@@ -1,6 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
-import logger from "../config/logger";  // Import the logger
+import logger from "../config/logger"; // Import the logger
 
 // @ts-ignore
 import { Product } from "../models";
@@ -26,6 +26,7 @@ router.get("/", async (req: Request, res: Response) => {
         `%${lowerKeyword}%`
       ),
       attributes: [
+        "id",
         "product_name",
         "product_price",
         "product_stock",
@@ -39,7 +40,9 @@ router.get("/", async (req: Request, res: Response) => {
     }
 
     res.status(200).json(products);
-    logger.info(`GET / - Successfully retrieved product data with keyword: ${keyword}`);
+    logger.info(
+      `GET / - Successfully retrieved product data with keyword: ${keyword}`
+    );
   } catch (error) {
     logger.error(`GET / - Error: ${error}`);
     console.error(error);

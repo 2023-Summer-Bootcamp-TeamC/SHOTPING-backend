@@ -11,6 +11,11 @@ import searchRouter from "./routers/searchRouter";
 import popularRouter from "./routers/popularRouter";
 import predictRouter from "./routers/predictRouter";
 
+//@ts-ignore
+import swaggerUi from "swagger-ui-express";
+//@ts-ignore
+import YAML from "yamljs";
+
 dotenv.config();
 
 const app: express.Express = express();
@@ -22,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use((req: Request, res: Response, next: NextFunction) => {
 //   const start = new Date().getTime();
 
-//   res.on('finish', () => { 
+//   res.on('finish', () => {
 //     const duration = new Date().getTime() - start;
 //     logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
 //   });
@@ -40,6 +45,8 @@ const metricsMiddleware = promBundle({
   includePath: true,
 });
 
+const swaggerDocument = YAML.load("./swagger/swagger.yaml");
+
 app.use(metricsMiddleware);
 
 app.use("/api/v1/predict", predictRouter);
@@ -55,5 +62,7 @@ app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/search", searchRouter);
 
 app.use("/api/v1/popular", popularRouter);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(port, () => console.log(`Server is running at port ${port}`));

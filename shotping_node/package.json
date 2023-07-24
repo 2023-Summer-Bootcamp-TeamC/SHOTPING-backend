@@ -31,7 +31,8 @@
     "sequelize": "^6.32.1",
     "sequelize-typescript": "^2.1.5",
     "winston": "^3.10.0",
-    "winston-daily-rotate-file": "^4.7.1"
+    "winston-daily-rotate-file": "^4.7.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",

@@ -1,0 +1,262 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: shotping API
+  description: connection API
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/v1/predict:
+    post:
+      summary: AI 상품 인식
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upload:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: predict succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outputProducts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        product_name:
+                          type: string
+                        product_price:
+                          type: number
+                        img_url:
+                          type: string
+                        data_id:
+                          type: integer
+        400:
+          description: No file attached.
+        500:
+          description: Error processing file upload.
+  /api/v1/feedback:
+    post:
+      summary: AI 상품 피드백
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data_id:
+                  type: integer
+                iscorrect:
+                  type: boolean
+                feedback_text:
+                  type: string
+                  nullable: true
+              required:
+                - data_id
+                - iscorrect
+      responses:
+        "200":
+          description: Feedback received.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+        "400":
+          description: Invalid request.
+        "404":
+          description: No data found with the provided data_id.
+        "500":
+          description: Error processing feedback.
+  /api/v1/order:
+    post:
+      summary: 상품 결제
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                      product_stock:
+                        type: integer
+                      product_buy:
+                        type: integer
+                  example:
+                    - product_id: 10
+                      product_stock: 1
+                      product_buy: 1
+                    - product_id: 12
+                      product_stock: 2
+                      product_buy: 2
+      responses:
+        "200":
+          description: Product data updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+        "404":
+          description: Product not found.
+        "500":
+          description: Error occurred while updating product data.
+  /api/v1/payment:
+    post:
+      summary: 결제 요청
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                total_amount:
+                  type: integer
+                  description: 총 결제 금액
+            example:
+              total_amount: 10000
+      responses:
+        "200":
+          description: Kakao API succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next_redirect_pc_url:
+                    type: string
+                    description: 다음 redirect PC URL
+        "400":
+          description: Invalid total_amount input
+        "500":
+          description: Error payment data
+  /api/v1/popular:
+    get:
+      summary: 인기 상품 조회
+      responses:
+        "200":
+          description: popular product succesfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_name:
+                      type: string
+                    product_price:
+                      type: integer
+                    product_buy:
+                      type: integer
+                    image_url:
+                      type: string
+        "500":
+          description: popular product search error
+  /api/v1/products:
+    get:
+      summary: 상품 목록 검색
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: 페이지 번호
+      responses:
+        "200":
+          description: products data succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      pages:
+                        type: integer
+                      prev_page:
+                        type: integer
+                      next_page:
+                        type: integer
+                      total_count:
+                        type: integer
+                      has_prev:
+                        type: boolean
+                      has_next:
+                        type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        product_name:
+                          type: string
+                        product_price:
+                          type: integer
+                        product_stock:
+                          type: integer
+                        image_url:
+                          type: string
+        "500":
+          description: product data fail
+  /api/v1/search:
+    get:
+      summary: 상품 검색
+      parameters:
+        - in: query
+          name: kw
+          schema:
+            type: string
+          description: 검색할 키워드
+      responses:
+        "200":
+          description: product search succesfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_name:
+                      type: string
+                    product_price:
+                      type: integer
+                    product_stock:
+                      type: integer
+                    image_url:
+                      type: string
+        "400":
+          description: not correct keyword
+        "404":
+          description: no search product
+        "500":
+          description: search error
