@@ -126,12 +126,13 @@ services:
       - prometheus
 
   elasticsearch:
+    container_name: elasticsearch
     build:
-      context: ./elasticsearch
+      context: ./elk/elasticsearch
       args: 
         ELASTIC_VERSION: 8.8.2
     volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
       - elasticsearch:/usr/share/elasticsearch/data:Z
     ports:
       - 9200:9200
@@ -148,14 +149,16 @@ services:
       discovery.type: single-node
     restart: unless-stopped
     mem_limit: 512m
+
   logstash:
+    container_name: logstash
     build:
-      context: ./logstash
+      context: ./elk/logstash
       args:
         ELASTIC_VERSION: 8.8.2
     volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+      - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
     ports:
       - 5044:5044
       - 50000:50000/tcp
@@ -170,12 +173,13 @@ services:
     mem_limit: 512m
 
   kibana:
+    container_name: kibana
     build:
-      context: ./kibana
+      context: ./elk/kibana
       args:
         ELASTIC_VERSION: 8.8.2
     volumes:
-      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+      - ./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
     ports:
       - 5601:5601
     environment:
@@ -186,13 +190,14 @@ services:
     mem_limit: 512m
 
   filebeat:
+    container_name: filebeat
     build:
-      context: ./filebeat
+      context: ./elk/filebeat
       args:
         ELASTIC_VERSION: 8.8.2
     entrypoint: "filebeat -e -strict.perms=false"
     volumes:
-      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./logs:/usr/share/filebeat/logs
       # - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
