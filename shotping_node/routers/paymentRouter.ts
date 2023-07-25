@@ -1,6 +1,5 @@
 import express from "express";
 import { Request, Response } from "express";
-import logger from "../config/logger";
 import * as queryString from "querystring";
 import axios from "axios";
 
@@ -41,9 +40,7 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(200).send({
       next_redirect_pc_url: kakaoApiResponse.data.next_redirect_pc_url,
     });
-    logger.info(`POST / - Payment process started`);
   } catch (error) {
-    logger.error(`POST / - Error: ${error}`);
     console.error("Error calling Kakao API", error);
     res.status(500).send("결제 오류");
   }

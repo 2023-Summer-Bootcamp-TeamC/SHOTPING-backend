@@ -1,6 +1,5 @@
 import express from "express";
 import { Request, Response } from "express";
-import logger from "../config/logger";
 // @ts-ignore
 import { Product, Data } from "../models";
 import { Op } from "sequelize";
@@ -27,7 +26,6 @@ router.post(
     }
 
     const file = req.file;
-
     // 서버로 데이터를 전송할 때 사용하는 Formdata를 사용
     // 파일과 같은 바이너리 데이터를 전송할 때 유용하다.
     try {
@@ -85,7 +83,6 @@ router.post(
         },
         attributes: ["id", "product_name", "product_price", "image_url"],
       });
-
       //interface 생성
       interface IProduct {
         id: number;
@@ -116,18 +113,14 @@ router.post(
 
       await s3Client.send(command);
       const imageUrl = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
-
       // 이미지 URL과 ai_predict를 데이터베이스에 저장하고
       const data = await Data.create({
         image_url: imageUrl,
         ai_predict: taskResult.result,
       });
-
       res.status(200).send({ outputProducts, data_id: data.id });
-      logger.info(`POST / - Image processing and product prediction successful`);
     } catch (error) {
       console.error(error);
-      logger.error(`POST / - Error: ${error}`);
       res.status(500).send({ error: "Error processing file upload" });
     }
   }
