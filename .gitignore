@@ -3,5 +3,5 @@ node_modules
 .DS_Store
 __pycache__
 shotping_flaksk/__pycache__/*
-alertmanager/alertmanager.yml
+alertmanager.yml
 logs
