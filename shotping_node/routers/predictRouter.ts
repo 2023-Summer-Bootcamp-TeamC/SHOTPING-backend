@@ -1,6 +1,5 @@
 import express from "express";
 import { Request, Response } from "express";
-import logger from "../config/logger";
 // @ts-ignore
 import { Product, Data } from "../models";
 import { Op } from "sequelize";
@@ -21,15 +20,12 @@ router.post(
   "/",
   upload.single("upload"),
   async (req: Request, res: Response) => {
-    logger.info(`POST / - File uploading...`);
     if (!req.file) {
-      logger.warn(`POST / - No file attached`);
       res.status(400).send({ error: "No file attached" });
       return;
     }
 
     const file = req.file;
-    logger.info(`POST / - File upload successfully`);
     // 서버로 데이터를 전송할 때 사용하는 Formdata를 사용
     // 파일과 같은 바이너리 데이터를 전송할 때 유용하다.
     try {
@@ -38,7 +34,6 @@ router.post(
         contentType: file.mimetype,
         filename: file.originalname,
       });
-      logger.info(`POST / - Form data created successfully`);
 
       const response = await axios.post(
         "http://flask-service:5000/predict",
@@ -49,12 +44,10 @@ router.post(
           },
         }
       );
-      logger.info(`POST / - Send file to flask-service successfully`);
 
       const taskId = response.data.task_id;
 
       // Poll for the task result
-      logger.info(`POST / - Waiting Result...`);
       let taskResult = null;
       do {
         // Wait for 5 seconds before checking the result again
@@ -68,7 +61,6 @@ router.post(
 
         // If the task has finished, break the loop
         if (taskResult.status === "SUCCESS") {
-          logger.info(`POST / - Task result retrieved`);
           break;
         }
       } while (true);
@@ -91,8 +83,6 @@ router.post(
         },
         attributes: ["id", "product_name", "product_price", "image_url"],
       });
-      logger.info(`POST / - Retrieved products from database`);
-
       //interface 생성
       interface IProduct {
         id: number;
@@ -123,18 +113,14 @@ router.post(
 
       await s3Client.send(command);
       const imageUrl = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
-      logger.info(`POST / - Image saved to S3`);
       // 이미지 URL과 ai_predict를 데이터베이스에 저장하고
       const data = await Data.create({
         image_url: imageUrl,
         ai_predict: taskResult.result,
       });
-      logger.info(`POST / - Data saved to database`);
       res.status(200).send({ outputProducts, data_id: data.id });
-      logger.info(`POST / - Image processing and product prediction successful`);
     } catch (error) {
       console.error(error);
-      logger.error(`POST / - Error: ${error}`);
       res.status(500).send({ error: "Error processing file upload" });
     }
   }

@@ -2,7 +2,8 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-      - /usr/share/filebeat/shotping_node/logs/*.log  # here
+      - /usr/share/filebeat/logs/*.log
+      # - /usr/share/filebeat/shotping_node/logs/*.log  # here
 
 
 output.logstash:
