@@ -39,6 +39,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     });
   }
   next();
+});
 
 const metricsMiddleware = promBundle({
   includeMethod: true,
