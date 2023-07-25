@@ -1,5 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
+
 // @ts-ignore
 import { Product } from "../models";
 import sequelize from "../config/database";
@@ -24,6 +25,7 @@ router.get("/", async (req: Request, res: Response) => {
         `%${lowerKeyword}%`
       ),
       attributes: [
+        "id",
         "product_name",
         "product_price",
         "product_stock",
@@ -37,6 +39,7 @@ router.get("/", async (req: Request, res: Response) => {
     }
 
     res.status(200).json(products);
+
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: "Error retrieving product data" });
