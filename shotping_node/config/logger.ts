@@ -12,7 +12,7 @@ const logFormat = winston.format.printf(({ level, message, timestamp }) => {
 });
 
 const transport = new winston.transports.DailyRotateFile({
-  dirname: "/usr/src/app/elk/logs",
+  dirname: "/usr/src/logs",
   filename: "application-%DATE%.log",
   datePattern: "YYYY-MM-DD",
   zippedArchive: true,
