@@ -23,28 +23,6 @@ const port = 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 로그 생성용 미들웨어
-app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.originalUrl !== "/metrics") {
-    // '/metrics' 경로의 로그를 무시
-    res.on("finish", function () {
-      const baseURL = req.baseUrl ? req.baseUrl : "";
-      const fullPathWithoutQuery = baseURL + req.path;
-
-      if (res.statusCode < 400) {
-        logger.info(
-          `API Success: ${req.method} ${fullPathWithoutQuery} Status code: ${res.statusCode}`
-        );
-      } else {
-        logger.error(
-          `API Error: ${req.method} ${fullPathWithoutQuery} Status code: ${res.statusCode}`
-        );
-      }
-    });
-  }
-  next();
-});
-
 const metricsMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
