@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 from collections import Counter
 
-model = torch.hub.load("ultralytics/yolov5", "custom", path="best.pt")
+model = torch.hub.load("ultralytics/yolov5", "custom", path="my_model.pt")
 
 
 def predict_image(img_bytes):
