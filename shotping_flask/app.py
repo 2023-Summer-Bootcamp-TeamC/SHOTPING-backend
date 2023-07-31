@@ -19,13 +19,8 @@ def test_predict_route():
 
         # id = request.form.get("id")  # key : id
         image = request.files["image"]  # key : image
-        img_pil = Image.open(image)
-        img_pil = img_pil.resize((416, 416))
 
-        byte_arr = BytesIO()
-        img_pil.save(byte_arr, format="PNG")
-
-        img_name = byte_arr.getvalue()  # Bytes로 변환
+        img_name = BytesIO(image.read()).getvalue()  # Bytes로 변환
 
         # celery worker
         task = prediction.delay(img_name)

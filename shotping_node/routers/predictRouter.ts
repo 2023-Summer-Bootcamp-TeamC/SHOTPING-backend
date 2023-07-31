@@ -81,7 +81,13 @@ router.post(
             [Op.in]: productIds,
           },
         },
-        attributes: ["id", "product_name", "product_price", "image_url"],
+        attributes: [
+          "id",
+          "product_name",
+          "product_price",
+          "image_url",
+          "product_stock",
+        ],
       });
       //interface 생성
       interface IProduct {
