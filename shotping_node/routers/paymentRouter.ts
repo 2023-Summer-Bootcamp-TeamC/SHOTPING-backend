@@ -26,9 +26,9 @@ router.post("/", async (req: Request, res: Response) => {
     total_amount: total_amount,
     vat_amount: 200,
     tax_free_amount: 0,
-    approval_url: "https://your-success-url.com",
-    cancel_url: "https://your-cancel-url.com",
-    fail_url: "https://your-fail-url.com",
+    approval_url: "https://shotping.shop/pay",
+    cancel_url: "https://shotping.shop/payfail",
+    fail_url: "https://shotping.shop/payfail",
   });
 
   try {

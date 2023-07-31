@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       product_stock: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
       },
       product_buy: {
         type: Sequelize.INTEGER,
