@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "date-fns-tz": "^2.0.0"
+    "date-fns-tz": "^2.0.0",
+    "pytest": "^1.0.0"
   }
 }
