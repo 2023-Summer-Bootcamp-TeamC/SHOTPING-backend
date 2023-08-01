@@ -1,9 +1,11 @@
+import os.path
 import torch
 import json
 import pandas as pd
 from PIL import Image
 from io import BytesIO
 from collections import Counter
+
 
 model = torch.hub.load("ultralytics/yolov5", "custom", path="my_model.pt")
 
