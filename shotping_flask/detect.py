@@ -6,7 +6,6 @@ from PIL import Image
 from io import BytesIO
 from collections import Counter
 
-os.chdir("./yolov5")
 
 model = torch.hub.load("ultralytics/yolov5", "custom", path="my_model.pt")
 
